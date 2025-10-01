@@ -10,3 +10,6 @@
 .vscode/
 *.swp
 *~
+
+# Virtual environment directories
+.venv/

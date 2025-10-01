@@ -41,15 +41,6 @@ vurze/
 │   ├── __init__.py
 │   └── runtime.py                  # Runtime decorator verification logic
 │
-
-
-
-
-
-
-
-
-
 ├── tests/
 │   ├── test_parser.rs              # Rust unit tests
 │   ├── test_crypto.rs
@@ -66,4 +57,31 @@ vurze/
 │   └── usage.md
 │
 └── .env.example                   # Example environment file for keys
+```
+
+```text
+https://www.youtube.com/watch?v=01hYL76B_d8 to setup py03
+https://www.youtube.com/watch?v=fgC8YxNwBfQ another good one. explaining how
+https://www.youtube.com/watch?v=T45ZEmSR1-s&t=173s --> useful for initial setup.
+https://www.youtube.com/watch?v=UilujdubqVU --> david hewlitt talk on py03
+```
+
+```text
+initial setup steps:
+rustc --version
+python3 --version
+
+create and activate a virtual environment
+uv install maturin
+maturin init and choose py03 as the option
+
+COMMANDS I FOLLOWED TO TEST OUT THAT IT IMPORTS CORRECTLY:
+uv venv
+source .venv/bin/activate
+uv tool install maturin
+maturin init
+select pyo3
+x
+maturin develop
+python -c "import vurze; print('Vurze imported successfully!')"
 ```
