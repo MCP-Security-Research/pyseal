@@ -1,0 +1,12 @@
+# Cargo build directory
+/target/
+
+# Rust-specific files
+**/*.rs.bk
+**/*.rs.swp
+
+# Operating System and Editor files (common examples)
+.DS_Store
+.vscode/
+*.swp
+*~

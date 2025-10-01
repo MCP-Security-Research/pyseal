@@ -21,3 +21,49 @@ ALSO: Could measure performance in the end!!!
 1. start rust project
 2. create test python files.
 3. be able to parse and grab all functions in the file
+
+```text
+vurze/
+├── Cargo.toml                      # Rust package configuration
+├── pyproject.toml                  # Python package metadata
+├── README.md
+├── .gitignore
+│
+├── src/                            # Rust source code
+│   ├── lib.rs                      # Main library entry, PyO3 bindings
+│   ├── cli.rs                      # Clap CLI implementation
+│   ├── parser.rs                   # Python AST parsing logic
+│   ├── decorator.rs                # Decorator injection logic
+│   ├── crypto.rs                   # Asymmetric encryption/verification
+│   └── utils.rs                    # Helper functions
+│
+├── python/                         # Python-side code (if needed)
+│   ├── __init__.py
+│   └── runtime.py                  # Runtime decorator verification logic
+│
+
+
+
+
+
+
+
+
+
+├── tests/
+│   ├── test_parser.rs              # Rust unit tests
+│   ├── test_crypto.rs
+│   ├── test_cli.rs
+│   └── test_integration.py         # Python integration tests
+│
+├── examples/
+│   ├── example_script.py           # Sample Python file for testing
+│   └── protected_script.py         # Example of protected code
+│
+├── docs/
+│   ├── architecture.md
+│   ├── security_model.md
+│   └── usage.md
+│
+└── .env.example                   # Example environment file for keys
+```
