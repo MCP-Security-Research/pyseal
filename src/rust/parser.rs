@@ -79,8 +79,8 @@ pub fn add_decorators_to_functions(py: Python, file_path: &str, decorator: &str)
             // Step 4: Generate hash of the function/class source code
             let hash = crypto::generate_hash(&source_str);
             
-            // Step 5: Create decorator with the hash embedded
-            let decorator_with_hash = format!("{}_{}", decorator, hash);
+            // Step 5: Create decorator with the hash embedded (format: @vurze_<hash>)
+            let decorator_with_hash = format!("vurze.{}()", hash);
 
             // Get the decorator_list attribute from the original function node
             if let Ok(decorator_list) = node.getattr("decorator_list") {
