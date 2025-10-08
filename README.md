@@ -76,3 +76,7 @@ COMMANDS FOR TESTING CLI
 maturin develop --release
 vurze --help
 ```
+
+// generate a unique checksum for each function/class
+// verify the checksume when called and return true or false
+// Ed25519 asymmetric encryption
