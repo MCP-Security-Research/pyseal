@@ -6,7 +6,7 @@ use crate::crypto;
 // need to verify vurze has been imported before this is added
 
 #[pyfunction]
-pub fn add_decorators_to_functions(py: Python, file_path: &str, decorator: &str) -> PyResult<String> {
+pub fn add_decorators_to_functions(py: Python, file_path: &str) -> PyResult<String> {
     // Import Python's ast module to access AST parsing functionality
     let ast = py.import("ast")?;
     
@@ -80,7 +80,7 @@ pub fn add_decorators_to_functions(py: Python, file_path: &str, decorator: &str)
             let hash = crypto::generate_hash(&source_str);
             
             // Step 5: Create decorator with the hash embedded (format: @vurze_<hash>)
-            let decorator_with_hash = format!("vurze.{}()", hash);
+            let decorator_with_hash = format!("vurze._{}()", hash);
 
             // Get the decorator_list attribute from the original function node
             if let Ok(decorator_list) = node.getattr("decorator_list") {
@@ -100,8 +100,10 @@ pub fn add_decorators_to_functions(py: Python, file_path: &str, decorator: &str)
     Ok(code_str)
 }
 
-/* i need a function that will extract all of the decorators from a python file that are named x 
-and call the cryptographic function to verify that the hash matches. return true if it does
+/* i need a function that will extract all of the decorators from a python file that are named vurze._xxxxxx
+and call the cryptographic function to verify that the hash matches the underlying code
+
+if the hash does not match, it should return a list of the str function names where it does not match
 */
 // pub fn verify_decorators_for_functions()
 

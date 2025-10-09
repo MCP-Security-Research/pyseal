@@ -11,8 +11,7 @@ import sys
 import os
 from pathlib import Path
 
-from vurze import add_decorators_to_functions
-
+from .add_decorators import add_decorators_to_functions
 
 def main():
     """Main CLI entry point."""
@@ -91,7 +90,7 @@ def handle_decorate(args):
     
     try:
         # Call the Rust function to add decorators
-        modified_content = add_decorators_to_functions(file_path, f"@{decorator}")
+        modified_content = add_decorators_to_functions(file_path)
         
         # Determine output path
         output_path = args.output if args.output else file_path
