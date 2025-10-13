@@ -64,7 +64,11 @@ def add_decorators_to_functions(file_path: str) -> str:
             function_source = ast.unparse(node_clone)
             
             # Step 4: Generate hash of the function/class source code
-            hash_value = "placeholder_hash"
+            '''
+            // generate keypair
+            // generate sig package
+            // verify sig package
+            '''
             
             # Step 5: Create decorator with the hash embedded (format: @vurze._<hash>())
             decorator_name = f"vurze._{hash_value}"

@@ -4,6 +4,13 @@ use pyo3::prelude::*;
 
 mod crypto;
 
+/// Generate a new Ed25519 key pair
+/// Returns (private_key_hex, public_key_hex)
+#[pyfunction]
+fn generate_keypair() -> (String, String) {
+    crypto::generate_keypair()
+}
+
 /// Generate a complete signature package for data
 /// Returns (hash, signature, public_key) 
 #[pyfunction]
@@ -28,6 +35,7 @@ fn verify_signature_package(
 /// _vurze pyo3 module definition
 #[pymodule]
 fn _vurze(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(generate_keypair, m)?)?;
     m.add_function(wrap_pyfunction!(generate_signature_package, m)?)?;
     m.add_function(wrap_pyfunction!(verify_signature_package, m)?)?;
     Ok(())
