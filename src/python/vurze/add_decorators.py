@@ -1,4 +1,4 @@
-"""Automatically add decorators to all functions and classes in a python file."""
+"""Automatically add cryptographic decorators to all functions and classes in a python file."""
 
 import ast
 import copy
