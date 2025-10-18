@@ -29,7 +29,9 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = []
+dependencies = [
+    "python-dotenv>=1.0.0",
+]
 
 [project.scripts]
 vurze = "vurze.cli:main"

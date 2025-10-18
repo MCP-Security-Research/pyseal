@@ -101,3 +101,7 @@ problems:
 - cryptography
 - what decorators look like
 - how can i ensure that i can detect and report diffs correctly
+
+console print
+and ruff for linting code
+should i lint my rust code?

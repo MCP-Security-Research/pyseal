@@ -10,7 +10,6 @@ Provides commands:
 
 import argparse
 import sys
-import os
 from pathlib import Path
 
 from .setup import setup_keypair
@@ -96,7 +95,7 @@ def handle_init(args):
         setup_keypair(env_path)
         print(f"✓ Successfully initialized vurze!")
         print(f"✓ Keypair generated and stored in {env_path}")
-        print(f"\n⚠️  Keep your .env file secure and add it to .gitignore!")
+        print(f"⚠️  Keep your .env file secure and add it to .gitignore!")
         
         return 0
     except Exception as e:

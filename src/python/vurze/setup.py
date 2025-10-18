@@ -104,5 +104,5 @@ def get_private_key(env_path: Optional[str | Path] = None) -> str:
     
     return private_key
 
-# add .env to gitignore??? consider
+# add .env to gitignore automatically???
 # check if a gitignore exists
