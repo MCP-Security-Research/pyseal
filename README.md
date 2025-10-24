@@ -81,7 +81,7 @@ vurze --help
 
 todo:
 
-- generate keypair function. Try to shorten signature
+- luman art deco implementation for decorators
 - strings and comments error in ast parsing
 - do i need to fix my python import paths/strucutre of project?
 - fix spacing issues within adding decorators

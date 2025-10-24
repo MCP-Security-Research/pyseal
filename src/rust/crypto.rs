@@ -4,23 +4,24 @@ use ed25519_dalek::{Signer, Verifier, SigningKey, VerifyingKey, Signature};
 use rand::rngs::OsRng;
 
 /// Generate a new Ed25519 key pair
-/// Returns (private_key_hex, public_key_hex)
+/// Returns (private_key_base58, public_key_base58)
 pub fn generate_keypair() -> (String, String) {
     let mut csprng = OsRng;
     let signing_key = SigningKey::generate(&mut csprng);
     let verifying_key = signing_key.verifying_key();
     
-    let private_key_hex = hex::encode(signing_key.to_bytes());
-    let public_key_hex = hex::encode(verifying_key.to_bytes());
+    let private_key_base58 = bs58::encode(signing_key.to_bytes()).into_string();
+    let public_key_base58 = bs58::encode(verifying_key.to_bytes()).into_string();
     
-    (private_key_hex, public_key_hex)
+    (private_key_base58, public_key_base58)
 }
 
 /// Sign data using Ed25519 with a private key
-/// Returns the signature as a hex string
-pub fn generate_signature(data: &str, private_key_hex: &str) -> Result<String, String> {
-    let private_key_bytes = hex::decode(private_key_hex)
-        .map_err(|e| format!("Invalid private key hex: {}", e))?;
+/// Returns the signature as a Base58 string
+pub fn generate_signature(data: &str, private_key_base58: &str) -> Result<String, String> {
+    let private_key_bytes = bs58::decode(private_key_base58)
+        .into_vec()
+        .map_err(|e| format!("Invalid private key Base58: {}", e))?;
     
     if private_key_bytes.len() != 32 {
         return Err("Private key must be 32 bytes".to_string());
@@ -32,17 +33,19 @@ pub fn generate_signature(data: &str, private_key_hex: &str) -> Result<String, S
     let signing_key = SigningKey::from_bytes(&key_array);
     let signature = signing_key.sign(data.as_bytes());
     
-    Ok(hex::encode(signature.to_bytes()))
+    Ok(bs58::encode(signature.to_bytes()).into_string())
 }
 
 /// Verify an Ed25519 signature
 /// Returns true if the signature is valid
-pub fn verify_signature(data: &str, signature_hex: &str, public_key_hex: &str) -> Result<bool, String> {
-    let signature_bytes = hex::decode(signature_hex)
-        .map_err(|e| format!("Invalid signature hex: {}", e))?;
+pub fn verify_signature(data: &str, signature_base58: &str, public_key_base58: &str) -> Result<bool, String> {
+    let signature_bytes = bs58::decode(signature_base58)
+        .into_vec()
+        .map_err(|e| format!("Invalid signature Base58: {}", e))?;
     
-    let public_key_bytes = hex::decode(public_key_hex)
-        .map_err(|e| format!("Invalid public key hex: {}", e))?;
+    let public_key_bytes = bs58::decode(public_key_base58)
+        .into_vec()
+        .map_err(|e| format!("Invalid public key Base58: {}", e))?;
     
     if public_key_bytes.len() != 32 {
         return Err("Public key must be 32 bytes".to_string());
