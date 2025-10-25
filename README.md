@@ -92,6 +92,7 @@ todo:
 - ensure tool works with recursive functions and classes. basic test cases using pytest, and also cargo test???
 - would a different approach other than ast be faster/more reliable/better?
 - start adding tests to make sure tool continues to work
+- remove code duplication (consider having one file processing tool, one parser, etc)
 - also start to measure the performance of the tool
 - use git api to track diffs? (other option is using my own .vurze metadata file)
 - update to use ruff to lint python code

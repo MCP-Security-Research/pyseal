@@ -1,8 +1,13 @@
 """
 Command-line interface for vurze.
 
-Provides commands:
-x
+Commands:
+- init: Initialize vurze with a new keypair and .env file.
+- decorate: Add vurze decorators to all functions and classes in a Python file.
+- check: Check the integrity and validity of vurze decorators in a Python file.
+- remove: Remove all vurze decorators from a Python file.
+
+Use `vurze --help` to see available options and command details.
 """
 
 from pathlib import Path
@@ -11,14 +16,16 @@ import typer
 from typing_extensions import Annotated
 
 from .setup import setup_keypair
-from .add_decorators import add_decorators_to_functions
-from .check_decorators import check_decorators_on_functions
+from .add_decorators import add_decorators
+from .check_decorators import check_decorators
+from .remove_decorators import remove_decorators
 
 app = typer.Typer(
     name="vurze",
     help="Version control your Python functions and classes with cryptographic decorators",
     no_args_is_help=True,
 )
+
 
 @app.command()
 def init(
@@ -49,7 +56,7 @@ def decorate(
         typer.Argument(help="Path to the Python file to decorate")
     ]
 ):
-    """Add decorators to all functions in a Python file."""
+    """Add decorators to all functions and classes in a Python file."""
     path = Path(file_path)
     
     # Validate file exists
@@ -65,7 +72,7 @@ def decorate(
     try:
         # Add decorators to all functions and classes in the file
         resolved_path = str(path.resolve())
-        modified_code = add_decorators_to_functions(resolved_path)
+        modified_code = add_decorators(resolved_path)
         
         # Write the modified code back to the file
         with open(resolved_path, 'w') as f:
@@ -103,7 +110,7 @@ def check(
     
     # Check all decorators in the file
     resolved_path = str(path.resolve())
-    results = check_decorators_on_functions(resolved_path)
+    results = check_decorators(resolved_path)
     
     # Return success if all decorated functions are valid
     decorated_count = sum(1 for r in results.values() if r["has_decorator"])
@@ -115,6 +122,37 @@ def check(
         typer.echo(typer.style("All decorators are valid!", fg=typer.colors.BLUE, bold=True))
     else:
         typer.echo(typer.style(f"✗ {decorated_count - valid_count} decorator(s) failed verification!", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def remove(
+    file_path: Annotated[
+        str,
+        typer.Argument(help="Path to the Python file to remove vurze decorators from")
+    ]
+):
+    """Remove vurze decorators from all functions and classes in a Python file."""
+    path = Path(file_path)
+    # Validate file exists
+    if not path.exists():
+        typer.echo(typer.style(f"Error: File '{path}' does not exist.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+    # Validate it's a Python file
+    if not path.suffix == '.py':
+        typer.echo(typer.style(f"Error: File '{path}' is not a Python file.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+    try:
+        resolved_path = str(path.resolve())
+        modified_code, found = remove_decorators(resolved_path)
+        with open(resolved_path, 'w') as f:
+            f.write(modified_code)
+        if found:
+            typer.echo(typer.style(f"Successfully removed vurze decorators from {resolved_path}", fg=typer.colors.BLUE, bold=True))
+        else:
+            typer.echo(f"⚠️  No vurze decorators found in {resolved_path}")
+    except Exception as e:
+        typer.echo(typer.style(f"Unexpected error while removing decorators: {e}", fg=typer.colors.RED, bold=True), err=True)
         raise typer.Exit(code=1)
 
 

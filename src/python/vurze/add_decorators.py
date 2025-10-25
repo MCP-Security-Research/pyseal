@@ -5,7 +5,7 @@ import copy
 from vurze import generate_signature
 from .setup import get_private_key
 
-def add_decorators_to_functions(file_path: str) -> str:
+def add_decorators(file_path: str) -> str:
     """
     Parse a Python file, add decorators to all functions and classes, and return the modified code.
     

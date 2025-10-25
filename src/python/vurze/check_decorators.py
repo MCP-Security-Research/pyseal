@@ -7,7 +7,7 @@ from vurze import verify_signature
 from .setup import get_public_key
 
 
-def check_decorators_on_functions(file_path: str) -> Dict[str, dict]:
+def check_decorators(file_path: str) -> Dict[str, dict]:
     """
     Parse a Python file and verify all vurze cryptographic decorators.
     
