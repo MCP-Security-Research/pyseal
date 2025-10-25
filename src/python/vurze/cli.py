@@ -2,161 +2,126 @@
 Command-line interface for vurze.
 
 Provides commands:
-- vurze init <optional arg of .env file path>: Initialize vurze with an .env file
-- vurze decorate <python_file_path>: Add decorators to functions in a Python file
-- vurze check <python_file_path>: Check the integrity of decorators in a Python file
-- vurze remove (this is cleanup code)
+x
 """
 
-import argparse
-import sys
 from pathlib import Path
+
+import typer
+from typing_extensions import Annotated
 
 from .setup import setup_keypair
 from .add_decorators import add_decorators_to_functions
 from .check_decorators import check_decorators_on_functions
 
-def main():
-    """Main CLI entry point."""
-    parser = argparse.ArgumentParser(
-        prog="vurze",
-        description="Version control your Python functions with cryptographic decorators"
-    )
-    
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # Init command
-    init_parser = subparsers.add_parser(
-        'init',
-        help='Initialize vurze with an .env file'
-    )
-    init_parser.add_argument(
-        'env_file',
-        type=str,
-        nargs='?',
-        default='.env',
-        help='Path to the .env file (default: .env in current directory)'
-    )
-    
-    # Decorate command
-    decorate_parser = subparsers.add_parser(
-        'decorate', 
-        help='Add decorators to all functions in a Python file'
-    )
-    decorate_parser.add_argument(
-        'file_path', 
-        type=str, 
-        help='Path to the Python file to decorate'
-    )
-    
-    # Check command
-    check_parser = subparsers.add_parser(
-        'check', 
-        help='Check the integrity of decorators in a Python file'
-    )
-    check_parser.add_argument(
-        'file_path', 
-        type=str, 
-        help='Path to the Python file to check'
-    )
+app = typer.Typer(
+    name="vurze",
+    help="Version control your Python functions and classes with cryptographic decorators",
+    no_args_is_help=True,
+)
 
-    args = parser.parse_args()
-    if not args.command:
-        parser.print_help()
-        return 1
-    
-    # Handle init command
-    if args.command == 'init':
-        return handle_init(args)
-    
-    # Handle decorate and check commands
-    file_path = Path(args.file_path)
-    if not file_path.exists():
-        print(f"Error: File '{file_path}' does not exist.", file=sys.stderr)
-        return 1
-    if not file_path.suffix == '.py':
-        print(f"Error: File '{file_path}' is not a Python file.", file=sys.stderr)
-        return 1
+@app.command()
+def init(
+    env_file: Annotated[
+        str,
+        typer.Argument(help="Path to the .env file")
+    ] = ".env"
+):
+    """Initialize vurze with an .env file."""
     try:
-        if args.command == 'decorate':
-            return handle_decorate(args)
-        elif args.command == 'check':
-            return handle_check(args)
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
-    return 0
-
-
-def handle_init(args):
-    """Handle the init command."""
-    try:
-        env_path = Path(args.env_file)
+        env_path = Path(env_file)
         
         # Generate and store keypair (will raise error if keys already exist)
         setup_keypair(env_path)
-        print(f"✓ Successfully initialized vurze!")
-        print(f"✓ Keypair generated and stored in {env_path}")
-        print(f"⚠️  Keep your .env file secure and add it to .gitignore!")
+        typer.echo(typer.style("Successfully initialized vurze!", fg=typer.colors.BLUE, bold=True))
+        typer.echo(f"🔑 Keypair generated and stored in {env_path}")
+        typer.echo("⚠️  Keep your .env file secure and add it to .gitignore!")
         
-        return 0
     except Exception as e:
-        print(f"Error during initialization: {e}", file=sys.stderr)
-        return 1
+        typer.echo(typer.style(f"Error during initialization: {e}", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
 
 
-def handle_decorate(args):
-    """Handle the decorate command."""
-    file_path = str(Path(args.file_path).resolve())
+@app.command()
+def decorate(
+    file_path: Annotated[
+        str,
+        typer.Argument(help="Path to the Python file to decorate")
+    ]
+):
+    """Add decorators to all functions in a Python file."""
+    path = Path(file_path)
+    
+    # Validate file exists
+    if not path.exists():
+        typer.echo(typer.style(f"Error: File '{path}' does not exist.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+    
+    # Validate it's a Python file
+    if not path.suffix == '.py':
+        typer.echo(typer.style(f"Error: File '{path}' is not a Python file.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
     
     try:
         # Add decorators to all functions and classes in the file
-        modified_code = add_decorators_to_functions(file_path)
+        resolved_path = str(path.resolve())
+        modified_code = add_decorators_to_functions(resolved_path)
         
         # Write the modified code back to the file
-        with open(file_path, 'w') as f:
+        with open(resolved_path, 'w') as f:
             f.write(modified_code)
         
-        print(f"✓ Successfully added decorators to {file_path}")
-        return 0
+        typer.echo(typer.style(f"Successfully added decorators to {resolved_path}", fg=typer.colors.BLUE, bold=True))
         
     except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
+        typer.echo(typer.style(f"Error: {e}", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
     except Exception as e:
-        print(f"Unexpected error while decorating file: {e}", file=sys.stderr)
-        return 1
+        typer.echo(typer.style(f"Unexpected error while decorating file: {e}", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
 
 
-def handle_check(args):
-    """Handle the check command."""
-    file_path = str(Path(args.file_path).resolve())
+@app.command()
+def check(
+    file_path: Annotated[
+        str,
+        typer.Argument(help="Path to the Python file to check")
+    ]
+):
+    """Check the integrity of decorators in a Python file."""
+    path = Path(file_path)
     
-    try:
-        # Check all decorators in the file
-        results = check_decorators_on_functions(file_path)
-        
-        # Return success if all decorated functions are valid
-        decorated_count = sum(1 for r in results.values() if r["has_decorator"])
-        valid_count = sum(1 for r in results.values() if r["valid"])
-        
-        if decorated_count == 0:
-            print("⚠️  No vurze decorators found in this file.")
-            return 0
-        elif valid_count == decorated_count:
-            print("✓ All decorators are valid!")
-            return 0
-        else:
-            print(f"✗ {decorated_count - valid_count} decorator(s) failed verification!")
-            return 1
-            
-    except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Unexpected error while checking decorators: {e}", file=sys.stderr)
-        return 1
+    # Validate file exists
+    if not path.exists():
+        typer.echo(typer.style(f"Error: File '{path}' does not exist.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+    
+    # Validate it's a Python file
+    if not path.suffix == '.py':
+        typer.echo(typer.style(f"Error: File '{path}' is not a Python file.", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+    
+    # Check all decorators in the file
+    resolved_path = str(path.resolve())
+    results = check_decorators_on_functions(resolved_path)
+    
+    # Return success if all decorated functions are valid
+    decorated_count = sum(1 for r in results.values() if r["has_decorator"])
+    valid_count = sum(1 for r in results.values() if r["valid"])
+    
+    if decorated_count == 0:
+        typer.echo("⚠️  No vurze decorators found in this file.")
+    elif valid_count == decorated_count:
+        typer.echo(typer.style("All decorators are valid!", fg=typer.colors.BLUE, bold=True))
+    else:
+        typer.echo(typer.style(f"✗ {decorated_count - valid_count} decorator(s) failed verification!", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
+
+
+def main():
+    """Main CLI entry point."""
+    app()
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
