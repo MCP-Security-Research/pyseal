@@ -103,6 +103,3 @@ def get_private_key(env_path: Optional[str | Path] = None) -> str:
         raise ValueError(f"VURZE_PRIVATE_KEY not found in {env_path}. Run setup_keypair() first.")
     
     return private_key
-
-# add .env to gitignore automatically???
-# check if a gitignore exists

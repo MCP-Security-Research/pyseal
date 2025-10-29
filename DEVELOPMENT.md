@@ -14,6 +14,7 @@
 - create test cases that ensure that code runs the same after the decorators have been added
 - can my tool be attacked by adding soooooo many decorators? like should i create a limit?
 - does my tool remove decorators that are automatically created? like does it clean up after itself properly?
+- add .env to gitignore automatically???, check if a gitignore exists
 - update to use ruff to lint python code
 - make the tool conform to ruff linting standards
 - update to use ____ to lint rust code
