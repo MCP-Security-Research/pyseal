@@ -78,24 +78,3 @@ COMMANDS FOR TESTING CLI
 maturin develop --release
 vurze --help
 ```
-
-todo:
-
-- luman art deco implementation for decorators, just adding decorators does not work, i need to verify that code runs the same after they have been added
-- lumans art deco needs integrated with both add and remove?
-- how does vurze currently handle imports of itself from the cli?? explore???
-
-- create a finalized readme file
-- hook up to pypi for first release and set up github actions for publishing / releasing
-
-- make it be able to work with multiple files at once
-- ensure tool works with recursive functions and classes. basic test cases using pytest, and also cargo test???
-- would a different approach other than ast be faster/more reliable/better?
-- start adding tests to make sure tool continues to work
-- remove code duplication (consider having one file processing tool, one parser, etc)
-- also start to measure the performance of the tool
-- use git api to track diffs? (other option is using my own .vurze metadata file)
-- update to use ruff to lint python code
-- make the tool conform to ruff linting standards
-- update to use ____ to lint rust code
-- have a code review from professor
