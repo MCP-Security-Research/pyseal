@@ -1,21 +1,23 @@
 # Development TODOs
 
-- create a finalized readme file
-- hook up to pypi for first release and set up github actions for publishing / releasing
-
-- what happens if someone deletes a decorator to a function?
-- make it be able to work with multiple files at once
-- ensure tool works with recursive functions and classes. basic test cases using pytest, and also cargo test???
-- would a different approach other than ast be faster/more reliable/better?
-- start adding tests to make sure tool continues to work
-- remove code duplication (consider having one file processing tool, one parser, etc)
-- also start to measure the performance of the tool
 - use git api to track diffs? (other option is using my own .vurze metadata file)
+
+- kapfhammer mentioned fort knox for storing secrets? look into mise developer that made it
+- dotenv github actions problem luman
+- add .env to gitignore automatically???, check if a gitignore exists
+
+- make it be able to work with multiple files at once
+- would a different approach other than ast be faster/more reliable/better?
+
+- ensure tool works with recursive functions and classes. basic test cases using pytest, and also cargo test???
 - create test cases that ensure that code runs the same after the decorators have been added
+- what happens if someone deletes a decorator to a function
+- also start to measure the performance of the tool?
 - can my tool be attacked by adding soooooo many decorators? like should i create a limit?
 - can my tool be used against itself to attack itself
 - does my tool remove decorators that are automatically created? like does it clean up after itself properly?
-- add .env to gitignore automatically???, check if a gitignore exists
+
+- remove code duplication (consider having one file processing tool, one parser, etc)
 - update to use ruff to lint python code
 - make the tool conform to ruff linting standards
 - you can use maturin's sphinx generation for documentation?
