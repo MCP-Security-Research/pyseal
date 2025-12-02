@@ -18,7 +18,7 @@ from typing_extensions import Annotated
 from .setup import setup_keypair
 from .add_decorators import add_decorators, add_decorators_to_folder
 from .check_decorators import check_decorators, check_decorators_in_folder
-from .remove_decorators import remove_decorators
+from .remove_decorators import remove_decorators, remove_decorators_from_folder
 
 app = typer.Typer(
     name="vurze",
@@ -188,28 +188,51 @@ def check(
 def remove(
     file_path: Annotated[
         str,
-        typer.Argument(help="Path to the Python file to remove vurze decorators from")
+        typer.Argument(help="Path to the Python file or folder to remove vurze decorators from")
     ]
 ):
-    """Remove vurze decorators from all functions and classes in a Python file."""
+    """Remove vurze decorators from all functions and classes in a Python file or all Python files in a folder."""
     path = Path(file_path)
-    # Validate file exists
+    
+    # Validate path exists
     if not path.exists():
-        typer.echo(typer.style(f"Error: File '{path}' does not exist.", fg=typer.colors.RED, bold=True), err=True)
+        typer.echo(typer.style(f"Error: Path '{path}' does not exist.", fg=typer.colors.RED, bold=True), err=True)
         raise typer.Exit(code=1)
-    # Validate it's a Python file
-    if not path.suffix == '.py':
-        typer.echo(typer.style(f"Error: File '{path}' is not a Python file.", fg=typer.colors.RED, bold=True), err=True)
-        raise typer.Exit(code=1)
+    
     try:
-        resolved_path = str(path.resolve())
-        modified_code, found = remove_decorators(resolved_path)
-        with open(resolved_path, 'w') as f:
-            f.write(modified_code)
-        if found:
-            typer.echo(typer.style(f"Successfully removed vurze decorators from {resolved_path}", fg=typer.colors.BLUE, bold=True))
+        # Handle folder path
+        if path.is_dir():
+            resolved_path = str(path.resolve())
+            modified_files = remove_decorators_from_folder(resolved_path)
+            
+            if modified_files:
+                typer.echo(typer.style(f"Successfully removed decorators from {len(modified_files)} file(s):", fg=typer.colors.BLUE, bold=True))
+                for file in modified_files:
+                    typer.echo(f"  ✓ {file}")
+            else:
+                typer.echo("⚠️  No vurze decorators found in any files.")
+        
+        # Handle file path
         else:
-            typer.echo(f"⚠️  No vurze decorators found in {resolved_path}")
+            # Validate it's a Python file
+            if not path.suffix == '.py':
+                typer.echo(typer.style(f"Error: File '{path}' is not a Python file.", fg=typer.colors.RED, bold=True), err=True)
+                raise typer.Exit(code=1)
+            
+            resolved_path = str(path.resolve())
+            modified_code, found = remove_decorators(resolved_path)
+            
+            with open(resolved_path, 'w') as f:
+                f.write(modified_code)
+            
+            if found:
+                typer.echo(typer.style(f"Successfully removed vurze decorators from {resolved_path}", fg=typer.colors.BLUE, bold=True))
+            else:
+                typer.echo(f"⚠️  No vurze decorators found in {resolved_path}")
+    
+    except (FileNotFoundError, NotADirectoryError, ValueError) as e:
+        typer.echo(typer.style(f"Error: {e}", fg=typer.colors.RED, bold=True), err=True)
+        raise typer.Exit(code=1)
     except Exception as e:
         typer.echo(typer.style(f"Unexpected error while removing decorators: {e}", fg=typer.colors.RED, bold=True), err=True)
         raise typer.Exit(code=1)
