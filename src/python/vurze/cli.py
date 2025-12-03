@@ -222,7 +222,7 @@ def remove(
             modified_files = remove_decorators_from_folder(resolved_path)
             
             if modified_files:
-                typer.echo(typer.style(f"Successfully removed decorators from {len(modified_files)} file(s):", fg=typer.colors.BLUE, bold=True))
+                typer.echo(typer.style(f"Successfully removed decorators from {len(modified_files)} files:", fg=typer.colors.BLUE, bold=True))
                 for file in modified_files:
                     typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {file}")
             else:
@@ -242,7 +242,8 @@ def remove(
                 f.write(modified_code)
             
             if found:
-                typer.echo(typer.style(f"Successfully removed vurze decorators from {resolved_path}", fg=typer.colors.BLUE, bold=True))
+                typer.echo(typer.style(f"Successfully removed decorators from 1 file:", fg=typer.colors.BLUE, bold=True))
+                typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {resolved_path}")
             else:
                 typer.echo(f"⚠️  No vurze decorators found in {resolved_path}")
     
