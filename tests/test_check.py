@@ -20,7 +20,9 @@ def test_check_valid_decorated_file():
         file_path = os.path.join(tmpdir, "sample.py")
         with open(file_path, "w") as f:
             f.write(SAMPLE_CODE)
-        subprocess.run(["pysealer", "decorate", file_path], capture_output=True, text=True)
+        # Initialize pysealer in the temp directory
+        subprocess.run(["pysealer", "init"], cwd=tmpdir, capture_output=True, text=True, input="n\n")
+        subprocess.run(["pysealer", "lock", file_path], capture_output=True, text=True)
         result = subprocess.run(["pysealer", "check", file_path], capture_output=True, text=True)
         assert result.returncode == 0, f"pysealer check failed: {result.stderr}"
         # Accept the actual output string
@@ -33,7 +35,9 @@ def test_check_fails_on_tampered_file():
         file_path = os.path.join(tmpdir, "sample.py")
         with open(file_path, "w") as f:
             f.write(SAMPLE_CODE)
-        subprocess.run(["pysealer", "decorate", file_path], capture_output=True, text=True)
+        # Initialize pysealer in the temp directory
+        subprocess.run(["pysealer", "init"], cwd=tmpdir, capture_output=True, text=True, input="n\n")
+        subprocess.run(["pysealer", "lock", file_path], capture_output=True, text=True)
             # Tamper with the function body (change a line inside the function)
         with open(file_path, "r") as f:
             lines = f.readlines()
