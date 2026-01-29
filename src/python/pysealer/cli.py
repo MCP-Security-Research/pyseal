@@ -228,12 +228,9 @@ def check(
                     
                     if decorated_count > 0:
                         if valid_count == decorated_count:
-                            decorator_word = "decorator" if decorated_count == 1 else "decorators"
-                            typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {file_path}: {typer.style(f'{decorated_count} {decorator_word} valid', fg=typer.colors.GREEN)}")
+                            typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {file_path}")
                         else:
-                            failed = decorated_count - valid_count
-                            decorator_word = "decorator" if decorated_count == 1 else "decorators"
-                            typer.echo(f"  {typer.style('✗', fg=typer.colors.RED)} {file_path}: {typer.style(f'{failed}/{decorated_count} {decorator_word} failed', fg=typer.colors.RED)}")
+                            typer.echo(f"  {typer.style('✗', fg=typer.colors.RED)} {file_path}")
             
             # Exit with error if there were failures
             if total_decorated > 0 and total_valid < total_decorated:
@@ -256,12 +253,12 @@ def check(
             elif valid_count == decorated_count:
                 decorator_word = "decorator" if decorated_count == 1 else "decorators"
                 typer.echo(typer.style(f"All {decorator_word} are valid in 1 file:", fg=typer.colors.BLUE, bold=True))
-                typer.echo(f"{typer.style('✓', fg=typer.colors.GREEN)} {resolved_path}: {typer.style(f'{decorated_count} {decorator_word} valid', fg=typer.colors.GREEN)}")
+                typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {resolved_path}")
             else:
                 failed = decorated_count - valid_count
                 decorator_word = "decorator" if decorated_count == 1 else "decorators"
                 typer.echo(typer.style(f"{failed}/{decorated_count} {decorator_word} failed in 1 file:", fg=typer.colors.BLUE, bold=True), err=True)
-                typer.echo(f"  {typer.style('✗', fg=typer.colors.RED)} {resolved_path}: {typer.style(f'{failed}/{decorated_count} {decorator_word} failed', fg=typer.colors.RED)}")
+                typer.echo(f"  {typer.style('✗', fg=typer.colors.RED)} {resolved_path}")
                 raise typer.Exit(code=1)
     
     except (FileNotFoundError, NotADirectoryError, ValueError) as e:
@@ -342,3 +339,18 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+'''
+modify the check command to print out the specific reason why the decorator is invalid for each that fails. basically i need to get the diff of the previos to the current using git somehow and print the dif in a super readable and user friendly way.
+
+1. Color-code the diff lines
+2. Add context lines (show unchanged code around changes)
+get rid of what comes after this /Users/aidandyga/Downloads/SeniorThesis/pysealer/examples/math_operations.py:
+specifically1/5 decorators failed or 7 decorators valid. i dont need this showing up
+
+ex. 
+2 decorators failed in 2 files:
+  ✗ /Users/aidandyga/Downloads/SeniorThesis/pysealer/examples/math_operations.py: 1/5 decorators failed
+  ✓ /Users/aidandyga/Downloads/SeniorThesis/pysealer/examples/text_processing.py: 7 decorators valid
+  ✗ /Users/aidandyga/Downloads/SeniorThesis/pysealer/examples/fibonacci.py: 1/1 decorator failed
+'''
