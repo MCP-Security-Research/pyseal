@@ -33,9 +33,8 @@ def _format_diff_output(func_name: str, diff_lines):
     """Format and display git diff with color coding."""
     if not diff_lines:
         return
-    
-    typer.echo(f"    Function '{func_name}' was modified:")
-    
+    typer.echo(typer.style(f"    Function '{func_name}' was modified:", fg=typer.colors.RED, bold=True))
+
     for diff_type, content, line_num in diff_lines:
         # Format line with appropriate styling
         if diff_type == '-':
