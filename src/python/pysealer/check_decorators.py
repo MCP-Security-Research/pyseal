@@ -95,44 +95,24 @@ def check_decorators(file_path: str) -> Dict[str, dict]:
                 continue
             
             # Extract the source code without pysealer decorators for verification
-            node_clone = copy.deepcopy(node)
+            # Use original source to preserve formatting (quotes, spacing, etc.)
+            content_lines = content.split('\n')
+            start_line = node.lineno - 1
+            end_line = node.end_lineno if hasattr(node, 'end_lineno') and node.end_lineno else node.lineno
             
-            # Filter out pysealer decorators from the clone
-            if hasattr(node_clone, 'decorator_list'):
-                filtered_decorators = []
-                
-                for decorator in node_clone.decorator_list:
-                    should_keep = True
-                    
-                    # Check if decorator is a simple Name node starting with "pysealer"
-                    if isinstance(decorator, ast.Name):
-                        if decorator.id.startswith("pysealer"):
-                            should_keep = False
-                    
-                    # Check if decorator is an Attribute node (e.g., pysealer.something)
-                    elif isinstance(decorator, ast.Attribute):
-                        if isinstance(decorator.value, ast.Name) and decorator.value.id == "pysealer":
-                            should_keep = False
-                    
-                    # Check if decorator is a Call node
-                    elif isinstance(decorator, ast.Call):
-                        func = decorator.func
-                        # Check if call is to pysealer.something()
-                        if isinstance(func, ast.Attribute):
-                            if isinstance(func.value, ast.Name) and func.value.id == "pysealer":
-                                should_keep = False
-                        # Check if call is to pysealer_something()
-                        elif isinstance(func, ast.Name) and func.id.startswith("pysealer"):
-                            should_keep = False
-                    
-                    if should_keep:
-                        filtered_decorators.append(decorator)
-                
-                node_clone.decorator_list = filtered_decorators
+            # Get the source lines for this node
+            source_lines = content_lines[start_line:end_line]
             
-            # Convert the filtered node back to source code
-            module_wrapper = ast.Module(body=[node_clone], type_ignores=[])
-            function_source = ast.unparse(module_wrapper)
+            # Filter out pysealer decorator lines
+            filtered_lines = []
+            for line in source_lines:
+                stripped = line.strip()
+                # Skip lines that are pysealer decorators
+                if stripped.startswith('@pysealer.') or stripped.startswith('@pysealer'):
+                    continue
+                filtered_lines.append(line)
+            
+            function_source = '\n'.join(filtered_lines)
             
             # Store the source code
             result["source"] = function_source

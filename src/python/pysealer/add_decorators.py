@@ -84,32 +84,23 @@ def add_decorators(file_path: str) -> tuple[str, bool]:
             continue
 
         # Extract the complete source code of this function/class for hashing
-        node_clone = copy.deepcopy(node)
-
-        # Filter out pysealer decorators
-        if hasattr(node_clone, 'decorator_list'):
-            filtered_decorators = []
-            for decorator in node_clone.decorator_list:
-                should_keep = True
-                if isinstance(decorator, ast.Name):
-                    if decorator.id.startswith("pysealer"):
-                        should_keep = False
-                elif isinstance(decorator, ast.Attribute):
-                    if isinstance(decorator.value, ast.Name) and decorator.value.id == "pysealer":
-                        should_keep = False
-                elif isinstance(decorator, ast.Call):
-                    func = decorator.func
-                    if isinstance(func, ast.Attribute):
-                        if isinstance(func.value, ast.Name) and func.value.id == "pysealer":
-                            should_keep = False
-                    elif isinstance(func, ast.Name) and func.id.startswith("pysealer"):
-                        should_keep = False
-                if should_keep:
-                    filtered_decorators.append(decorator)
-            node_clone.decorator_list = filtered_decorators
-
-        module_wrapper = ast.Module(body=[node_clone], type_ignores=[])
-        function_source = ast.unparse(module_wrapper)
+        # Use original source to preserve formatting (quotes, spacing, etc.)
+        start_line = node.lineno - 1
+        end_line = node.end_lineno if hasattr(node, 'end_lineno') and node.end_lineno else node.lineno
+        
+        # Get the source lines for this node
+        source_lines = lines[start_line:end_line]
+        
+        # Filter out pysealer decorator lines
+        filtered_lines = []
+        for line in source_lines:
+            stripped = line.strip()
+            # Skip lines that are pysealer decorators
+            if stripped.startswith('@pysealer.') or stripped.startswith('@pysealer'):
+                continue
+            filtered_lines.append(line)
+        
+        function_source = '\n'.join(filtered_lines)
 
         try:
             private_key = get_private_key()
