@@ -79,7 +79,15 @@ def init(
     github_token: Annotated[
         str,
         typer.Option("--github-token", help="GitHub personal access token for uploading public key to repository secrets.")
-    ] = None
+    ] = None,
+    hook_mode: Annotated[
+        str,
+        typer.Option("--hook-mode", help="Hook mode: 'mandatory' (block commits on error) or 'optional' (warn only).")
+    ] = "mandatory",
+    hook_pattern: Annotated[
+        str,
+        typer.Option("--hook-pattern", help="File pattern for hook to process (e.g., '**/*.py' or 'src/**/*.py').")
+    ] = "**/*.py"
 ):
     """Initialize pysealer with an .env file and optionally upload public key to GitHub."""
     try:
@@ -124,10 +132,12 @@ def init(
                 typer.echo(typer.style("✓ Git pre-commit hook already installed", fg=typer.colors.GREEN))
             else:
                 typer.echo(typer.style("Installing git pre-commit hook...", fg=typer.colors.BLUE, bold=True))
-                success, message = install_hook(mode="mandatory", target_pattern="**/*.py")
+                success, message = install_hook(mode=hook_mode, target_pattern=hook_pattern)
                 
                 if success:
                     typer.echo(typer.style(f"✓ {message}", fg=typer.colors.GREEN))
+                    typer.echo(f"   Mode: {hook_mode}")
+                    typer.echo(f"   Pattern: {hook_pattern}")
                     typer.echo("   The hook will automatically decorate files before each commit.")
                     typer.echo("   To bypass: git commit --no-verify")
                 else:
