@@ -122,7 +122,7 @@ def init(
         # Git hook installation (automatic if in git repository)
         typer.echo()
         if not is_git_repository():
-            typer.echo(typer.style("⚠️  Not a git repository. Skipping hook installation.", fg=typer.colors.YELLOW))
+            typer.echo(typer.style("⚠️  Warning: Not a git repository. Skipping hook installation.", fg=typer.colors.YELLOW))
             typer.echo("   Initialize git first with 'git init', then run 'pysealer hook install'")
         else:
             # Check if hook is already installed
@@ -131,14 +131,14 @@ def init(
             if is_installed:
                 typer.echo(typer.style("✓ Git pre-commit hook already installed", fg=typer.colors.GREEN))
             else:
-                typer.echo(typer.style("Installing git pre-commit hook...", fg=typer.colors.BLUE, bold=True))
+                typer.echo(typer.style("Installing Pysealer git pre-commit hook...", fg=typer.colors.BLUE, bold=True))
                 success, message = install_hook(mode=hook_mode, target_pattern=hook_pattern)
                 
                 if success:
                     typer.echo(typer.style(f"✓ {message}", fg=typer.colors.GREEN))
                     typer.echo(f"   Mode: {hook_mode}")
                     typer.echo(f"   Pattern: {hook_pattern}")
-                    typer.echo("   The hook will automatically decorate files before each commit.")
+                    typer.echo("   The hook will automatically lock files before each commit.")
                     typer.echo("   To bypass: git commit --no-verify")
                 else:
                     typer.echo(typer.style(f"⚠️  Warning: {message}", fg=typer.colors.YELLOW))
@@ -152,7 +152,7 @@ def init(
 def lock(
     file_path: Annotated[
         str,
-        typer.Argument(help="Path to the Python file or folder to decorate")
+        typer.Argument(help="Path to the Python file or folder to lock")
     ]
 ):
     """Add decorators to all functions and classes in a Python file or all Python files in a folder."""
