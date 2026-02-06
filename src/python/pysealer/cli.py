@@ -22,6 +22,7 @@ from .add_decorators import add_decorators, add_decorators_to_folder
 from .check_decorators import check_decorators, check_decorators_in_folder
 from .remove_decorators import remove_decorators, remove_decorators_from_folder
 from .git_diff import is_git_available
+from .git_pre_commit import install_hook, get_hook_status, is_git_repository
 
 app = typer.Typer(
     name="pysealer",
@@ -109,6 +110,29 @@ def init(
             except Exception as e:
                 typer.echo(typer.style(f"⚠️  Warning: Failed to upload to GitHub: {e}", fg=typer.colors.YELLOW))
                 typer.echo("   You can manually add the PYSEALER_PUBLIC_KEY to GitHub secrets later.")
+        
+        # Git hook installation (automatic if in git repository)
+        typer.echo()
+        if not is_git_repository():
+            typer.echo(typer.style("⚠️  Not a git repository. Skipping hook installation.", fg=typer.colors.YELLOW))
+            typer.echo("   Initialize git first with 'git init', then run 'pysealer hook install'")
+        else:
+            # Check if hook is already installed
+            is_installed, _, _ = get_hook_status()
+            
+            if is_installed:
+                typer.echo(typer.style("✓ Git pre-commit hook already installed", fg=typer.colors.GREEN))
+            else:
+                typer.echo(typer.style("Installing git pre-commit hook...", fg=typer.colors.BLUE, bold=True))
+                success, message = install_hook(mode="mandatory", target_pattern="**/*.py")
+                
+                if success:
+                    typer.echo(typer.style(f"✓ {message}", fg=typer.colors.GREEN))
+                    typer.echo("   The hook will automatically decorate files before each commit.")
+                    typer.echo("   To bypass: git commit --no-verify")
+                else:
+                    typer.echo(typer.style(f"⚠️  Warning: {message}", fg=typer.colors.YELLOW))
+                    typer.echo("   You can manually install it by editing .git/hooks/pre-commit")
         
     except Exception as e:
         typer.echo(typer.style(f"Error during initialization: {e}", fg=typer.colors.RED, bold=True), err=True)
@@ -333,28 +357,14 @@ def remove(
             typer.echo(typer.style(f"Successfully removed decorators from {len(modified_files)} {file_word}:", fg=typer.colors.BLUE, bold=True))
             for file in modified_files:
                 typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {file}")
-        
-        # Handle file path
+        # Handle single file
         else:
-            
             resolved_path = str(path.resolve())
-            modified_code, found = remove_decorators(resolved_path)
-            
-            with open(resolved_path, 'w') as f:
-                f.write(modified_code)
-            
-            if found:
-                typer.echo(typer.style(f"Successfully removed decorators from 1 file:", fg=typer.colors.BLUE, bold=True))
-                typer.echo(f"  {typer.style('✓', fg=typer.colors.GREEN)} {resolved_path}")
-            else:
-                typer.echo(typer.style(f"No pysealer decorators found in 1 file:", fg=typer.colors.YELLOW, bold=True))
-                typer.echo(f"  {typer.style('⊘', fg=typer.colors.YELLOW)} {resolved_path}")
-    
-    except (FileNotFoundError, NotADirectoryError, ValueError) as e:
-        typer.echo(typer.style(f"Error: {e}", fg=typer.colors.RED, bold=True), err=True)
-        raise typer.Exit(code=1)
+            modified_content, _ = remove_decorators(resolved_path)
+            typer.echo(typer.style(f"✓ Successfully removed decorators from: {resolved_path}", fg=typer.colors.GREEN))
+
     except Exception as e:
-        typer.echo(typer.style(f"Unexpected error while removing decorators: {e}", fg=typer.colors.RED, bold=True), err=True)
+        typer.echo(typer.style(f"Error removing decorators: {e}", fg=typer.colors.RED, bold=True), err=True)
         raise typer.Exit(code=1)
 
 
@@ -363,5 +373,5 @@ def main():
     app()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
